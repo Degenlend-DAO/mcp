@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
+import { z, ZodIssue } from "zod";
 
 // Define the API call tool schema
 const ApiCallArgsSchema = z.object({
@@ -130,10 +130,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const issues = error.issues || [];
+      const issues: ZodIssue[] = error.issues || [];
       throw new Error(
         `Invalid arguments: ${issues
-          .map((e: any) => `${e.path.join(".")}: ${e.message}`)
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
           .join(", ")}`
       );
     }
@@ -145,6 +145,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+  // Log to stderr so it doesn't interfere with stdio protocol communication
   console.error("Lending Protocol MCP Server running on stdio");
 }
 
